@@ -20,13 +20,19 @@ module Solargraph
       private
 
       def parse_models
-        pins = []
+        loader = FilesLoader.new(Dir[File.join(Dir.pwd, 'app', 'models', '**', '*.rb')])
 
-        FilesLoader.new(
-          Dir[File.join(Dir.pwd, 'app', 'models', '**', '*.rb')]
-        ).each { |file, contents| pins.push *PinCreator.new(file, contents).create_pins }
+        loader.map do |file, contents|
+          PinCreator.new(file, contents).create_pins(schema_file_parser)
+        end
+      end
 
-        pins
+      def schema_file_parser
+        @schema_file_parser ||= begin
+          path = File.join(Dir.pwd, 'config', 'schema.rb')
+
+          Parsing::SchemaFileParser.new(path, file_contents: File.read(path)) if File.exist?(path)
+        end
       end
     end
   end

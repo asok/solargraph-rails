@@ -1,6 +1,8 @@
 module Solargraph
   module Rails
     class FilesLoader
+      include Enumerable
+
       def initialize(file_names)
         @file_names = file_names
       end
